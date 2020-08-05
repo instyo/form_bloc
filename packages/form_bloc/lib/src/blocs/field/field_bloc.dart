@@ -158,7 +158,7 @@ abstract class SingleFieldBloc<
     final _onStart = onStart ?? (_, __) {};
 
     final _onFinish = onFinish ?? (State p, State c, R r) {};
-     
+
     var _states = null;
     try {
       _states = distinct((p, c) => p.value == c.value)
@@ -166,8 +166,10 @@ abstract class SingleFieldBloc<
           .doOnData((states) => _onStart(states.first, states.last))
           .debounceTime(debounceTime)
           .switchMap<List<dynamic>>(
-            (states) => onData(states.first, states.last)
-                .map((r) => <dynamic>[states.first, states.last, r]),
+            (states) => onData(states.first, states.last) != null
+                ? onData(states.first, states.last)
+                    .map((r) => <dynamic>[states.first, states.last, r])
+                : null,
           )
           .listen((list) =>
               _onFinish(list[0] as State, list[1] as State, list[2] as R));
